@@ -1,0 +1,198 @@
+{% load static %}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}E-Commerce Brand X{% endblock %}</title>
+
+    <!-- Tailwind CSS (dihasilkan oleh Tailwind CLI) -->
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+
+    <!-- Alpine.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Font Awesome CDN (versi 6+) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+
+    <!--flowbite-->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables Core -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Tailwind Plugin -->
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
+
+    <!--Sweetalert-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col p-0 md:p-0 min-h-screen bg-slate-100 w-full text-gray-800">
+
+    <nav class="border-gray-200 bg-white shadow z-10">
+        <div class="max-w-screen-xl flex flex-wrap items-center mx-auto px-4 py-3 md:py-3 sm:p-3">
+            <nav class="flex relative ml-auto" aria-label="User navigation">
+                <div class="relative self-center">
+                    <div class="flex flex-row space-x-1 sm:space-x-3">
+                        <span class="flex items-center space-x-3 rtl:space-x-reverse">
+                            <span
+                                class="sm:inline text-sm uppercase font-normal hover:text-blue-600 focus:outline-none">
+                                Dasbor<span class="font-[1000]">Panel</span>
+                            </span>
+                        </span>
+                        <span class="sm:inline text-sm self-center">|</span>
+                        <div class="flex items-center text-sm group space-x-2" type="button">
+                            <span>Halo<strong class="ml-1 capitalize font-bold">___</strong></span>
+                        </div>
+                    </div>
+            </nav>
+        </div>
+    </nav>
+    <div x-data="{ open: false, userMenuOpen: false }" class="flex">
+        <!-- Sidebar Toggle Button -->
+        <div class="fixed top-1 left-2 z-50">
+            <button @click="open = !open"
+                class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6 text-gray-600 transform transition-transform duration-300"
+                    :class="open ? 'rotate-90' : 'rotate-0'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8M4 18h16" />
+                </svg>
+            </button>
+        </div>
+        <!-- Sidebar (Desktop Only) -->
+        <div x-show="open"
+            class="flex flex-col h-screen w-52 bg-lime-50 border-r border-gray-100 fixed top-0 left-0 z-40 py-4 overflow-hidden transition-all duration-300"
+            :class="open ? 'w-52' : 'w-0'">
+            <!-- Sidebar Navigation -->
+            <nav class="space-y-2 px-2 mt-8 w-full text-sm">
+                <div class="m-2">
+                    <h4 class="text-sm text-slate-500 mb-4">Admin Panel</h4>
+                    <ul class="space-y-4 px-2 flex-1">
+                        <li>
+                            <a href="{% url 'admin_dashboard' %}"
+                                class="text-slate-800 text-sm flex items-center font-medium hover:text-blue-600 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-4 mr-3"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M19.56 23.253H4.44a4.051 4.051 0 0 1-4.05-4.05v-9.115c0-1.317.648-2.56 1.728-3.315l7.56-5.292a4.062 4.062 0 0 1 4.644 0l7.56 5.292a4.056 4.056 0 0 1 1.728 3.315v9.115a4.051 4.051 0 0 1-4.05 4.05zM12 2.366a2.45 2.45 0 0 0-1.393.443l-7.56 5.292a2.433 2.433 0 0 0-1.037 1.987v9.115c0 1.34 1.09 2.43 2.43 2.43h15.12c1.34 0 2.43-1.09 2.43-2.43v-9.115c0-.788-.389-1.533-1.037-1.987l-7.56-5.292A2.438 2.438 0 0 0 12 2.377z"
+                                        data-original="#000000"></path>
+                                    <path
+                                        d="M16.32 23.253H7.68a.816.816 0 0 1-.81-.81v-5.4c0-2.83 2.3-5.13 5.13-5.13s5.13 2.3 5.13 5.13v5.4c0 .443-.367.81-.81.81zm-7.83-1.62h7.02v-4.59c0-1.933-1.577-3.51-3.51-3.51s-3.51 1.577-3.51 3.51z"
+                                        data-original="#000000"></path>
+                                </svg>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)"
+                                class="text-slate-800 text-sm flex items-center font-medium hover:text-blue-600 transition-all">                               
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-3">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                                </svg>
+                                <span>Admin</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <hr class="my-6 border-gray-200" />
+
+                <div class="flex-1 mx-2">
+                    <h4 class="text-sm text-slate-500 mb-4">Manajemen Produk</h4>
+                    <ul class="space-y-4 px-2 flex-1">
+                        <li>
+                            <a href="{% url 'category_list' %}"
+                                class="text-slate-800 text-sm flex items-center font-medium hover:text-blue-600 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="w-4 h-4 mr-3"
+                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"">
+                                    <path stroke-linecap=" round" stroke-linejoin="round"
+                                    d="m7.875 14.25 1.214 1.942a2.25 2.25 0 0 0 1.908 1.058h2.006c.776 0 1.497-.4 1.908-1.058l1.214-1.942M2.41 9h4.636a2.25 2.25 0 0 1 1.872 1.002l.164.246a2.25 2.25 0 0 0 1.872 1.002h2.092a2.25 2.25 0 0 0 1.872-1.002l.164-.246A2.25 2.25 0 0 1 16.954 9h4.636M2.41 9a2.25 2.25 0 0 0-.16.832V12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 12V9.832c0-.287-.055-.57-.16-.832M2.41 9a2.25 2.25 0 0 1 .382-.632l3.285-3.832a2.25 2.25 0 0 1 1.708-.786h8.43c.657 0 1.281.287 1.709.786l3.284 3.832c.163.19.291.404.382.632M4.5 20.25h15A2.25 2.25 0 0 0 21.75 18v-2.625c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125V18a2.25 2.25 0 0 0 2.25 2.25Z" />
+                                </svg>
+                                <span>Kategori</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'product_list' %}"
+                                class="text-slate-800 text-sm flex items-center font-medium hover:text-blue-600 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-4 mr-3"
+                                    viewBox="0 0 511.414 511.414">
+                                    <path
+                                        d="M497.695 108.838a16.002 16.002 0 0 0-9.92-14.8L261.787 1.2a16.003 16.003 0 0 0-12.16 0L23.639 94.038a16 16 0 0 0-9.92 14.8v293.738a16 16 0 0 0 9.92 14.8l225.988 92.838a15.947 15.947 0 0 0 12.14-.001c.193-.064-8.363 3.445 226.008-92.837a16 16 0 0 0 9.92-14.8zm-241.988 76.886-83.268-34.207L352.39 73.016l88.837 36.495zm-209.988-51.67 71.841 29.513v83.264c0 8.836 7.164 16 16 16s16-7.164 16-16v-70.118l90.147 37.033v257.797L45.719 391.851zM255.707 33.297l55.466 22.786-179.951 78.501-61.035-25.074zm16 180.449 193.988-79.692v257.797l-193.988 79.692z"
+                                        data-original="#000000" />
+                                </svg>
+                                <span>Produk</span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+
+
+
+                <!-- Divider before Logout -->
+                <div class="border-t border-gray-200 my-2"></div>
+
+                <!-- Logout -->
+                <a href="" class="flex items-center gap-x-3 p-2 rounded-lg hover:bg-gray-100 
+                        transition-all duration-200 group">
+                    <div class="flex items-center justify-center w-6">
+                        <!-- Logout Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </div>
+                    <span class="whitespace-nowrap text-red-700
+                    transition-all duration-300 
+                    overflow-hidden">
+                        Logout
+                    </span>
+                </a>
+            </nav>
+        </div>
+
+
+        <!-- Main Content -->
+        <div class="w-full
+                   transition-all duration-300 ease-in-out 
+                   md:pl-0" :class="open ? 'md:pl-48' : 'md:pl-0'">
+
+            <div class="container mx-auto py-0 md:py-4 w-full px-0 md:px-8">
+                <div class="flex md:flex-col w-full gap-4">
+                    {% block content %} <!-- Konten di sini --> {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="backdrop-blur-sm py-2 sm:py-3 mt-auto shadow bg-white text-center text-xs sm:text-sm text-gray-800">
+        <div class="container mx-auto">
+            <p>&copy; <span id="current-year"></span> catat-inventaris. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!--Current Year-->
+    <script>
+        document.getElementById("current-year").textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>

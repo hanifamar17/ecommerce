@@ -22,12 +22,19 @@ from catalog import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('dashboard/', views.admin_dashboard, name='admin_dashboard'), #dasbor admin
+    path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
+
+    #crud category
+    path('categories/', views.category_list, name='category_list'),
+    path('category/add/', views.add_category, name='add_category'),
+    path('category/edit/<int:pk>/', views.edit_category, name='edit_category'),
+    path('category/delete/<int:pk>/', views.delete_category, name='delete_category'),
 
     #crud product
-    path('dashboard/add/', views.add_product, name='add_product'),
-    path('dashboard/edit/<int:pk>/', views.edit_product, name='edit_product'),
-    path('dashboard/delete/<int:pk>/', views.delete_product, name='delete_product'),
+    path('products/', views.product_list, name='product_list'),
+    path('product/add/', views.add_product, name='add_product'),
+    path('product/edit/<int:pk>/', views.edit_product, name='edit_product'),
+    path('product/delete/<int:pk>/', views.delete_product, name='delete_product'),
 
 ]
 

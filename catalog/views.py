@@ -1,15 +1,70 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Products
+from .models import Category, Products
 from django.contrib.auth.decorators import login_required
-from .forms import ProductForm
+from .forms import CategoryForm, ProductForm
+from django.http import JsonResponse
 
 # Create your views here.
 @login_required
 def admin_dashboard(request):
-    product= Products.objects.all()
-    return render(request, 'admin/dashboard.html', {'products': product})
+    return render(request, 'product/dashboard.html')
+
+
+#CRUD CATEGORY
+@login_required
+def category_list(request):
+    category = Category.objects.all()
+    category_form = CategoryForm()    
+    return render(request, 'product/category.html', {
+        'categories': category,
+        'category_form': category_form
+        })
+
+#add
+@login_required
+def add_category(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'success', 'message': 'Kategori berhasil ditambahkan.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+#edit
+@login_required
+def edit_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('category_list')
+    return redirect('category_list')
+
+#delete
+@login_required
+def delete_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    category.delete()
+    return redirect('category_list')
+
 
 #CRUD PRODUCT
+@login_required
+def product_list(request):
+    product= Products.objects.all()
+    category = Category.objects.all()
+    product_form = ProductForm()
+    category_form = CategoryForm()    
+    return render(request, 'product/product.html', {
+        'products': product,
+        'categories': category,
+        'product_form': product_form,
+        'category_form': category_form
+        })
+
 #add
 @login_required
 def add_product(request):
@@ -20,7 +75,7 @@ def add_product(request):
             return redirect('admin_dashboard')
     else:
         form = ProductForm()
-    return render(request, 'admin/product_form.html', {'form': form})
+    return render(request, 'product/product_form.html', {'form': form})
 
 #edit
 @login_required
@@ -33,7 +88,7 @@ def edit_product(request, pk):
             return redirect('admin_dashboard')
     else:
         form = ProductForm(instance=product)
-    return render(request, 'admin/product_form.html', {'form': form, 'title': 'Edit Produk'})  
+    return render(request, 'product/product_form.html', {'form': form, 'title': 'Edit Produk'})  
 
 #delete
 @login_required
@@ -42,4 +97,4 @@ def delete_product(request, pk):
     if request.method == 'POST':
         product.delete()
         return redirect('admin_dashboard')
-    return render(request, 'admin/confirm_delete.html', {'product':product}) 
+    return render(request, 'product/confirm_delete.html', {'product':product}) 

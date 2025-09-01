@@ -1,0 +1,159 @@
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex justify-center items-center bg-gray-100">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+
+        <!-- Header -->
+        <div class="text-center my-8">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                {% if form.instance.pk %}Edit Produk{% else %}Tambah Produk{% endif %}
+            </h1>
+            <p class="text-gray-600 text-sm">Lengkapi informasi produk dengan teliti</p>
+        </div>
+
+        <!-- Form Container -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <form method="post" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+
+                <!-- Kategori -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Kategori
+                    </label>
+                    {{ form.category|add_class:"w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200" }}
+                    {% if form.category.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.category.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Nama Produk -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Nama Produk
+                    </label>
+                    {{ form.name|add_class:"w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200" }}
+                    {% if form.name.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Deskripsi -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Deskripsi
+                    </label>
+                    {{ form.description|add_class:"w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 resize-none" }}
+                    {% if form.description.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Harga dan Stok -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Harga
+                        </label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Rp</span>
+                            {{ form.price|add_class:"w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200" }}
+                        </div>
+                        {% if form.price.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.price.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Stok
+                        </label>
+                        {{ form.stock|add_class:"w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200" }}
+                        {% if form.stock.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.stock.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Upload Gambar -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Gambar Produk
+                    </label>
+                    <div
+                        class="w-full px-4 py-8 rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors duration-200 text-center bg-gray-50 hover:bg-blue-50">
+                        {{ form.image|add_class:"hidden" }}
+                        <div class="space-y-2">
+                            <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            <div class="text-sm text-gray-600">
+                                <span class="font-medium text-blue-600">Klik untuk upload</span>
+                                <p class="text-xs text-gray-500 mt-1">PNG, JPG hingga 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% if form.image.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.image.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3 pt-4">
+                    <a href="{% url 'product_list' %}"
+                        class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium text-center">
+                        Batal
+                    </a>
+                    <button type="submit"
+                        class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md">
+                        {% if form.instance.pk %}Update Produk{% else %}Simpan Produk{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-center mt-6">
+            <p class="text-xs text-gray-500">
+                Pastikan semua informasi sudah benar sebelum menyimpan
+            </p>
+        </div>
+
+
+        <script>
+            // File upload interaction
+            document.addEventListener('DOMContentLoaded', function () {
+                const fileInput = document.querySelector('input[type="file"]');
+                const uploadArea = fileInput.closest('.border-dashed');
+
+                uploadArea.addEventListener('click', () => fileInput.click());
+
+                fileInput.addEventListener('change', function (e) {
+                    const fileName = e.target.files[0]?.name;
+                    const textContainer = uploadArea.querySelector('.text-sm');
+
+                    if (fileName) {
+                        textContainer.innerHTML = `
+                <span class="font-medium text-green-600">File terpilih: ${fileName}</span>
+                <p class="text-xs text-gray-500 mt-1">Klik untuk mengganti</p>
+            `;
+                    }
+                });
+            });
+        </script>
+
+    </div>
+</body>
+
+</html>
