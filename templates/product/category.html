@@ -61,13 +61,13 @@
 <div class="w-full text-gray-800 p-8 bg-gray-50 rounded-md">
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-gray-200 mb-4">
-        <div class="text-center md:text-left space-y-2 mb-8">
+        <div class="text-center md:text-left space-y-2 mb-4">
             <h1 class="text-xl font-semibold text-gray-800">Kategori Produk</h1>
-            <p class="text-gray-600 text-sm">Menampilkan informasi kategori produk untuk dimasukkan ke katalog produk</p>
+            <p class="text-gray-600 text-sm">Menampilkan informasi kategori produk untuk dimasukkan ke katalog produk
+            </p>
         </div>
-        <!-- Modal toggle -->
         <div class="mb-4 flex justify-end space-x-2">
-            <button type="button" data-modal-target="crud-modal" data-modal-toggle="crud-modal" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md 
+            <a href="{% url 'add_category' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md 
       text-white bg-blue-600 hover:bg-blue-700 focus:outline-none 
       focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 no-print cursor-pointer">
                 <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
@@ -77,7 +77,7 @@
                         clip-rule="evenodd"></path>
                 </svg>
                 Kategori
-            </button>
+            </a>
         </div>
     </div>
 
@@ -94,12 +94,12 @@
                     <div class="flex items-center justify-between p-4 md:p-5 rounded-t border-b border-gray-300">
                         <div>
                             <h1 class="font-medium">Tambah Kategori Produk</h1>
-                            <p class="py-2 text-gray-500 text-sm">Buat kategori untuk produk untuk dimasukkan ke katalog
+                            <p class="py-2 text-gray-500 text-sm">Buat kategori produk untuk dimasukkan ke katalog
                             </p>
                         </div>
                         <button type="button"
                             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-                            data-modal-toggle="crud-modal">
+                            onclick="closeModal()">
                             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 14 14">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -167,11 +167,10 @@
                     <td class="px-3 py-2 capitalize whitespace-nowrap">{{ category.description }}</td>
                     <td class="px-3 py-2">
                         <div class="flex items-center space-x-2">
-                            <a href="{% url 'edit_category' category.id %}" class="edit-btn cursor-pointer
-                                            hover:text-blue-800 active:text-blue-900
-                                            font-medium text-sm
-                                            transition-all duration-200 ease-in-out
-                                            hover:underline hover:underline-offset-2">
+                            <a href="{% url 'edit_category' category.id %}" class="edit-btn hover:text-blue-800 active:text-blue-900
+                   font-medium text-sm
+                   transition-all duration-200 ease-in-out
+                   hover:underline hover:underline-offset-2 cursor-pointer">
                                 Edit
                             </a>
                             <!-- Separator -->
@@ -245,98 +244,8 @@
     });
 </script>
 
-<!--Modal add category-->
-<script>
-    const modal = document.getElementById('crud-modal');
-    const openModalButtons = document.querySelectorAll('[data-modal-toggle="crud-modal"]');
 
-    function openModal() {
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modal.querySelector('div.w-full').classList.remove('scale-95');
-        }, 10);
-    }
 
-    function closeModal() {
-        modal.classList.add('opacity-0');
-        modal.querySelector('div.w-full').classList.add('scale-95');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300); // Harus sama dengan duration-300
-    }
 
-    // Buka modal saat tombol open ditekan
-    openModalButtons.forEach(btn => {
-        btn.addEventListener('click', openModal);
-    });
-
-    // Hanya tutup modal jika klik tombol dengan atribut [data-modal-toggle="crud-modal"]
-    modal.querySelectorAll('[data-modal-toggle="crud-modal"]').forEach(btn => {
-        btn.addEventListener('click', closeModal);
-    });
-</script>
-
-<!-- Notifikasi tambah category -->
-<script>
-    //csrf token setup for ajax
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Apakah cookie ini sesuai dengan yang dicari?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    const csrftoken = getCookie('csrftoken');
-    const addUserForm = document.querySelector('#addCategoryForm');
-    if (addCategoryForm) {
-        addCategoryForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-
-            fetch('/category/add/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Toast.fire({
-                            icon: 'success',
-                            title: data.message
-                        }).then(() => {
-                            location.reload(); // Optional: Reload untuk reset form
-                        });
-                    } else {
-                        Toast.fire({
-                            icon: 'error',
-                            title: data.message || 'Gagal menambahkan kategori'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Toast.fire({
-                        icon: 'error',
-                        title: 'Terjadi kesalahan pada server'
-                    });
-                });
-        });
-    }
-</script>
 
 {% endblock %}

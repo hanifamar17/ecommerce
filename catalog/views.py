@@ -3,6 +3,7 @@ from .models import Category, Products
 from django.contrib.auth.decorators import login_required
 from .forms import CategoryForm, ProductForm
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 
 # Create your views here.
 @login_required
@@ -27,21 +28,23 @@ def add_category(request):
         form = CategoryForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return JsonResponse({'status': 'success', 'message': 'Kategori berhasil ditambahkan.'})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+            return JsonResponse({'status': 'success', 'message': 'Kategori berhasil ditambahkan.'})    
+        return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
+    form = CategoryForm()
+    return render(request, 'product/category_form.html', {'form': form})
 
 #edit
 @login_required
 def edit_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':
-        form = CategoryForm(request.POST, instance=category)
+        form = CategoryForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
             form.save()
-            return redirect('category_list')
-    return redirect('category_list')
+            return JsonResponse({'status': 'success', 'message': 'Kategori berhasil diperbarui.'})
+        return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
+    form = CategoryForm(instance=category)
+    return render(request, 'product/category_form.html', {'form': form, 'category': category})
 
 #delete
 @login_required
