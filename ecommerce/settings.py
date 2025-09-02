@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'catalog',
+    'store',
     'widget_tweaks',
     'django.contrib.humanize',
 ]

@@ -19,6 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 from catalog import views
+from store import views as store_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,6 +39,10 @@ urlpatterns = [
     path('product/edit/<int:pk>/', views.edit_product, name='edit_product'),
     path('product/confirm-delete/<int:pk>/', views.confirm_delete_product, name='confirm_delete_product'),
     path('product/delete/<int:pk>/', views.delete_product, name='delete_product'),
+
+    #STORE SECTION
+    path('', store_views.landing_page, name='landing_page'),
+    path('stor/products/', store_views.all_products, name='all_products'),
 
 ]
 

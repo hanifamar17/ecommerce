@@ -1,0 +1,468 @@
+{% extends "store/base.html" %}
+
+{% block title %}wkwk cloth{% endblock %}
+
+{% block content %}
+{% load widget_tweaks %}
+<style>
+    .filter-sidebar {
+        min-height: calc(100vh - 120px);
+    }
+
+    .product-hover {
+        transition: all 0.2s ease;
+    }
+
+    .product-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-section {
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+</style>
+<div class="w-full">
+    <div class="p-6 sm:10 lg:p-16">
+        <!-- Breadcrumb -->
+        <nav class="my-6">
+            <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                <li><a href="{% url 'landing_page' %}" class="hover:text-gray-900">Beranda</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-gray-900">Semua Produk</li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-light text-gray-900 mb-1">Semua Produk</h1>
+                <p class="text-sm text-gray-600">Temukan koleksi fashion terbaik kami</p>
+            </div>
+
+            <!-- Mobile Filter Toggle -->
+            <button id="mobileFilterToggle"
+                class="md:hidden mt-4 flex items-center text-sm text-gray-700 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                    </path>
+                </svg>
+                Filter & Sort
+            </button>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sidebar Filter -->
+            <aside id="filterSidebar"
+                class="w-full md:w-64 bg-white rounded-lg p-6 h-fit sticky top-6 border border-gray-100 hidden md:block">
+                <form id="filterForm" method="get" action="">
+                    <!-- Search -->
+                    <div class="filter-section">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">Pencarian</label>
+                        <input type="text" name="q" placeholder="Cari produk..."
+                            value="{{ request.GET.q|default_if_none:'' }}"
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-transparent">
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="filter-section">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">Kategori</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm">
+                                <input type="radio" name="category" value=""
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">Semua</span>
+                            </label>
+                            {% for cat in categories %}
+                            <label class="flex items-center text-sm">
+                                <input type="radio" name="category" value="{{ cat.id }}"
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">{{ cat.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="filter-section">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">Harga</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm">
+                                <input type="radio" name="price_range" value=""
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">Semua</span>
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="radio" name="price_range" value="0-100000"
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">
+                                    < Rp 100.000</span>
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="radio" name="price_range" value="100000-250000"
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">Rp 100.000 - 250.000</span>
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="radio" name="price_range" value="250000-500000"
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">Rp 250.000 - 500.000</span>
+                            </label>
+                            <label class="flex items-center text-sm">
+                                <input type="radio" name="price_range" value="500000-"
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">> Rp 500.000</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Sort Options -->
+                    <div class="filter-section">
+                        <label class="block text-sm font-medium text-gray-900 mb-3">Urutkan</label>
+                        <select name="sort" id="sortSelect"
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400">
+                            <option value="">Pilih urutan</option>
+                            <option value="latest">Terbaru</option>
+                            <option value="price_asc">Harga Terendah</option>
+                            <option value="price_desc">Harga Tertinggi</option>
+                            <option value="name_asc">Nama A-Z</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter Actions -->
+                    <div class="pt-4 space-y-2">
+                        <button type="submit"
+                            class="w-full bg-gray-900 text-white py-2 rounded-md text-sm hover:bg-gray-800 transition-colors">
+                            Terapkan Filter
+                        </button>
+                        <button type="button" id="clearFilters"
+                            class="w-full text-gray-600 py-2 rounded-md text-sm hover:bg-gray-50 transition-colors border border-gray-200">
+                            Reset Filter
+                        </button>
+                    </div>
+                </form>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1">
+                <!-- Top Bar with Results Count and Sort (for larger screens) -->
+                <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-lg border border-gray-100">
+                    <div class="text-sm text-gray-600">
+                        <span id="resultsCount">Menampilkan {{ products|length }} produk</span>
+                        {% if request.GET.q %}
+                        <span class="text-gray-400">untuk "{{ request.GET.q }}"</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quick Sort for Desktop -->
+                    <div class="hidden md:flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Urutkan:</span>
+                        <select name="quick_sort" id="quickSort"
+                            class="text-sm border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-gray-400">
+                            <option value="">Default</option>
+                            <option value="latest">Terbaru</option>
+                            <option value="price_asc">Harga ↑</option>
+                            <option value="price_desc">Harga ↓</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Active Filters -->
+                <div id="activeFilters" class="flex flex-wrap gap-2 mb-6">
+                    {% if request.GET.q %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                        Pencarian: "{{ request.GET.q }}"
+                        <button type="button"
+                            class="ml-2 w-4 h-4 hover:bg-gray-200 rounded-full flex items-center justify-center">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </span>
+                    {% endif %}
+                    {% if request.GET.category %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                        Kategori: {{ request.GET.category }}
+                        <button type="button"
+                            class="ml-2 w-4 h-4 hover:bg-gray-200 rounded-full flex items-center justify-center">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Products Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {% for product in products %}
+                    <div class="group bg-white rounded-lg overflow-hidden border border-gray-100 product-hover">
+                        <a href="#" class="block">
+                            <div class="relative overflow-hidden">
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                    class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+
+                                <!-- Quick Actions (appears on hover) -->
+                                <div
+                                    class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <button
+                                        class="bg-white text-gray-900 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
+                                        Lihat Detail
+                                    </button>
+                                </div>
+
+                                <!-- Wishlist Button -->
+                                <button
+                                    class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white">
+                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </a>
+
+                        <div class="p-4">
+                            <a href="#" class="block">
+                                <h3
+                                    class="font-medium text-gray-900 mb-1 text-sm hover:text-gray-600 transition-colors">
+                                    {{ product.name }}
+                                </h3>
+                            </a>
+                            <div class="flex items-center justify-between mt-2">
+                                <span class="font-medium text-gray-900 text-sm">
+                                    Rp {{ product.price|floatformat:0 }}
+                                </span>
+                                <button class="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                                    + Keranjang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full">
+                        <div class="text-center py-16 bg-white rounded-lg border border-gray-100">
+                            <div
+                                class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.291.974-5.709 2.291">
+                                    </path>
+                                </svg>
+                            </div>
+                            <h3 class="font-medium text-gray-900 mb-2">Tidak ada produk ditemukan</h3>
+                            <p class="text-sm text-gray-600 mb-4">Coba ubah filter atau kata kunci pencarian</p>
+                            <button type="button" id="clearAllFilters"
+                                class="text-sm text-gray-600 hover:text-gray-900 border-b border-gray-300 hover:border-gray-500 transition-colors">
+                                Reset semua filter
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Load More Button (if pagination needed) -->
+                {% if has_more_products %}
+                <div class="text-center mt-12">
+                    <button
+                        class="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm">
+                        Muat Lebih Banyak
+                    </button>
+                </div>
+                {% endif %}
+            </main>
+        </div>
+
+
+        <!-- Mobile Filter Overlay -->
+        <div id="mobileFilterOverlay" class="fixed inset-0 bg-black/50 z-50 hidden">
+            <div class="fixed right-0 top-0 h-full w-80 bg-white shadow-xl transform translate-x-full transition-transform duration-300"
+                id="mobileFilterPanel">
+                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                    <h3 class="font-medium text-gray-900">Filter & Sort</h3>
+                    <button id="closeMobileFilter"
+                        class="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-4 h-full overflow-y-auto">
+                    <!-- Same filter content as desktop sidebar -->
+                    <form method="get" action="">
+                        <div class="filter-section">
+                            <label class="block text-sm font-medium text-gray-900 mb-3">Pencarian</label>
+                            <input type="text" name="q" placeholder="Cari produk..."
+                                value="{{ request.GET.q|default_if_none:'' }}"
+                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400">
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="block text-sm font-medium text-gray-900 mb-3">Kategori</label>
+                            <select name="category"
+                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400">
+                                <option value="">Semua Kategori</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="block text-sm font-medium text-gray-900 mb-3">Harga</label>
+                            <select name="price_range"
+                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400">
+                                <option value="">Semua Harga</option>
+                                <option value="0-100000">
+                                    < Rp 100.000</option>
+                                <option value="100000-250000">Rp 100.000 - 250.000</option>
+                                <option value="250000-500000">Rp 250.000 - 500.000</option>
+                                <option value="500000-">> Rp 500.000</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="block text-sm font-medium text-gray-900 mb-3">Urutkan</label>
+                            <select name="sort"
+                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400">
+                                <option value="">Default</option>
+                                <option value="latest">Terbaru</option>
+                                <option value="price_asc">Harga Terendah</option>
+                                <option value="price_desc">Harga Tertinggi</option>
+                                <option value="name_asc">Nama A-Z</option>
+                            </select>
+                        </div>
+
+                        <div class="pt-6 space-y-3">
+                            <button type="submit"
+                                class="w-full bg-gray-900 text-white py-2.5 rounded-md text-sm hover:bg-gray-800 transition-colors">
+                                Terapkan Filter
+                            </button>
+                            <button type="button"
+                                class="w-full text-gray-600 py-2.5 rounded-md text-sm hover:bg-gray-50 transition-colors border border-gray-200">
+                                Reset Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mobile filter toggle
+    const mobileFilterToggle = document.getElementById('mobileFilterToggle');
+    const mobileFilterOverlay = document.getElementById('mobileFilterOverlay');
+    const mobileFilterPanel = document.getElementById('mobileFilterPanel');
+    const closeMobileFilter = document.getElementById('closeMobileFilter');
+
+    function openMobileFilter() {
+        mobileFilterOverlay.classList.remove('hidden');
+        setTimeout(() => {
+            mobileFilterPanel.classList.remove('translate-x-full');
+        }, 10);
+    }
+
+    function closeMobileFilterPanel() {
+        mobileFilterPanel.classList.add('translate-x-full');
+        setTimeout(() => {
+            mobileFilterOverlay.classList.add('hidden');
+        }, 300);
+    }
+
+    mobileFilterToggle?.addEventListener('click', openMobileFilter);
+    closeMobileFilter?.addEventListener('click', closeMobileFilterPanel);
+    mobileFilterOverlay?.addEventListener('click', (e) => {
+        if (e.target === mobileFilterOverlay) {
+            closeMobileFilterPanel();
+        }
+    });
+
+    // Keep selected options based on query string
+    const params = new URLSearchParams(window.location.search);
+
+    // Set category radio buttons
+    const categoryValue = params.get("category");
+    if (categoryValue) {
+        const categoryRadio = document.querySelector(`input[name="category"][value="${categoryValue}"]`);
+        if (categoryRadio) categoryRadio.checked = true;
+    }
+
+    // Set price range radio buttons
+    const priceRangeValue = params.get("price_range");
+    if (priceRangeValue) {
+        const priceRadio = document.querySelector(`input[name="price_range"][value="${priceRangeValue}"]`);
+        if (priceRadio) priceRadio.checked = true;
+    }
+
+    // Set sort dropdown
+    const sortValue = params.get("sort");
+    if (sortValue) {
+        document.getElementById("sortSelect").value = sortValue;
+        document.getElementById("quickSort").value = sortValue;
+    }
+
+    // Quick sort functionality
+    document.getElementById("quickSort")?.addEventListener('change', function () {
+        const currentUrl = new URL(window.location);
+        if (this.value) {
+            currentUrl.searchParams.set('sort', this.value);
+        } else {
+            currentUrl.searchParams.delete('sort');
+        }
+        window.location.href = currentUrl.toString();
+    });
+
+    // Clear filters
+    function clearAllFilters() {
+        const url = new URL(window.location);
+        url.search = '';
+        window.location.href = url.toString();
+    }
+
+    document.getElementById('clearFilters')?.addEventListener('click', clearAllFilters);
+    document.getElementById('clearAllFilters')?.addEventListener('click', clearAllFilters);
+
+    // Remove individual filter tags
+    document.querySelectorAll('#activeFilters button').forEach(button => {
+        button.addEventListener('click', function () {
+            const filterTag = this.parentElement;
+            const filterText = filterTag.textContent;
+
+            const url = new URL(window.location);
+
+            if (filterText.includes('Pencarian:')) {
+                url.searchParams.delete('q');
+            } else if (filterText.includes('Kategori:')) {
+                url.searchParams.delete('category');
+            }
+
+            window.location.href = url.toString();
+        });
+    });
+
+    // Auto-submit on filter change
+    document.querySelectorAll('input[name="category"], input[name="price_range"]').forEach(input => {
+        input.addEventListener('change', function () {
+            document.getElementById('filterForm').submit();
+        });
+    });
+</script>
+{% endblock %}
