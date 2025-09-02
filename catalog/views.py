@@ -68,6 +68,12 @@ def product_list(request):
         'category_form': category_form
         })
 
+#detail produk
+@login_required
+def detail_product(request, pk):
+    product = get_object_or_404(Products, pk=pk)
+    return render(request, 'product/detail_product.html', {'product': product})
+
 #add
 @login_required
 def add_product(request):
@@ -75,7 +81,9 @@ def add_product(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('admin_dashboard')
+            return JsonResponse({'status': 'success', 'message': 'Produk berhasil ditambahkan.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
     else:
         form = ProductForm()
     return render(request, 'product/product_form.html', {'form': form})
@@ -88,7 +96,7 @@ def edit_product(request, pk):
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             form.save()
-            return redirect('admin_dashboard')
+            return redirect('product_list')
     else:
         form = ProductForm(instance=product)
     return render(request, 'product/product_form.html', {'form': form, 'title': 'Edit Produk'})  
@@ -99,5 +107,5 @@ def delete_product(request, pk):
     product = get_object_or_404(Products, pk=pk)
     if request.method == 'POST':
         product.delete()
-        return redirect('admin_dashboard')
+        return redirect('product_list')
     return render(request, 'product/confirm_delete.html', {'product':product}) 

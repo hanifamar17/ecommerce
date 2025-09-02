@@ -32,6 +32,7 @@ urlpatterns = [
 
     #crud product
     path('products/', views.product_list, name='product_list'),
+    path('product/<int:pk>/', views.detail_product, name='detail_product'),
     path('product/add/', views.add_product, name='add_product'),
     path('product/edit/<int:pk>/', views.edit_product, name='edit_product'),
     path('product/delete/<int:pk>/', views.delete_product, name='delete_product'),

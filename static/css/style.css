@@ -1,0 +1,52 @@
+    /* Header style: gray text, not bold */
+    table.dataTable thead th {
+        background-color: #f9fafb;
+        /* Tailwind's gray-50 */
+        color: #6b7280 !important;
+        /* Tailwind's gray-500 */
+        font-weight: 400 !important;
+        /* Normal, not bold */
+        font-size: 0.875rem !important;
+        /* text-sm */
+        padding: 6px 8px !important;
+        white-space: nowrap;
+    }
+
+    /* Table body cell style */
+    table.dataTable tbody td {
+        font-size: 0.875rem !important;
+        /* text-sm */
+        padding: 4px 8px !important;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    /* Full width and auto layout */
+    table.dataTable {
+        width: 100% !important;
+        table-layout: auto;
+    }
+
+    /* Align details icon center if responsive collapse is used */
+    table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before {
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .currency {
+        font-family: 'Courier New', monospace;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }

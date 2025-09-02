@@ -1,26 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
 {% load widget_tweaks %}
-<!DOCTYPE html>
-<html>
 
-<head>
-    <title>{{ title }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
 
-<body class="flex justify-center items-center bg-gray-100">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+<div class="w-full text-gray-800 p-8 bg-gray-50 rounded-md">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-200 mb-4">
+        <div class="text-center md:text-left space-y-2 mb-4">
+            <h1 class="text-xl font-semibold text-gray-800">{% if form.instance.pk %}Edit Produk{% else %}Tambah
+                Produk{% endif %}</h1>
+            <p class="text-gray-600 text-sm">{% if form.instance.pk %}Edit{% else %}Tambah{% endif %} informasi produk
+                untuk dimasukkan ke katalog produk
+            </p>
+        </div>
+    </div>
 
-        <!-- Header -->
-        <div class="text-center my-8">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">
-                {% if form.instance.pk %}Edit Produk{% else %}Tambah Produk{% endif %}
-            </h1>
-            <p class="text-gray-600 text-sm">Lengkapi informasi produk dengan teliti</p>
+    <div class="flex md:flex-row mt-8">
+        <div class="md:w-1/2">
+            <h1 class="text-gray-800">Informasi Kategori</h1>
+            <p class="text-gray-600 text-sm">Pastikan informasi kategori yang dimasukkan benar</p>
         </div>
 
-        <!-- Form Container -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <form method="post" enctype="multipart/form-data" class="space-y-5">
+        <div class="md:w-1/2">
+            <!-- Form Container -->
+            <form id="productForm" method="post" enctype="multipart/form-data" class="space-y-5">
                 {% csrf_token %}
 
                 <!-- Kategori -->
@@ -39,7 +45,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Nama Produk
                     </label>
-                    {{ form.name|add_class:"w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200" }}
+                    {{ form.name }}
                     {% if form.name.errors %}
                     <p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
                     {% endif %}
@@ -50,7 +56,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Deskripsi
                     </label>
-                    {{ form.description|add_class:"w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 resize-none" }}
+                    {{ form.description }}
                     {% if form.description.errors %}
                     <p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p>
                     {% endif %}
@@ -65,7 +71,7 @@
                         <div class="relative">
                             <span
                                 class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Rp</span>
-                            {{ form.price|add_class:"w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200" }}
+                            {{ form.price }}
                         </div>
                         {% if form.price.errors %}
                         <p class="text-red-500 text-xs mt-1">{{ form.price.errors.0 }}</p>
@@ -76,7 +82,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             Stok
                         </label>
-                        {{ form.stock|add_class:"w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200" }}
+                        {{ form.stock }}
                         {% if form.stock.errors %}
                         <p class="text-red-500 text-xs mt-1">{{ form.stock.errors.0 }}</p>
                         {% endif %}
@@ -110,50 +116,145 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex gap-3 pt-4">
-                    <a href="{% url 'product_list' %}"
-                        class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium text-center">
+                <div class="flex justify-end gap-3 pt-4">
+                    <a href="{% url 'product_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md 
+      text-gray hover:bg-gray-100 focus:outline-none 
+      focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 no-print cursor-pointer">
                         Batal
                     </a>
-                    <button type="submit"
-                        class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md">
-                        {% if form.instance.pk %}Update Produk{% else %}Simpan Produk{% endif %}
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md 
+      text-white bg-blue-600 hover:bg-blue-700 focus:outline-none 
+      focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 no-print cursor-pointer">
+                        {% if form.instance.pk %}Perbarui Produk{% else %}Simpan Produk{% endif %}
                     </button>
                 </div>
             </form>
+
+            <!-- Footer Info -->
+            <div class="text-center mt-6">
+                <p class="text-xs text-gray-500">
+                    Pastikan semua informasi sudah benar sebelum menyimpan
+                </p>
+            </div>
         </div>
+    </div>
+</div>
 
-        <!-- Footer Info -->
-        <div class="text-center mt-6">
-            <p class="text-xs text-gray-500">
-                Pastikan semua informasi sudah benar sebelum menyimpan
-            </p>
-        </div>
+<script>
+    // File upload interaction
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileInput = document.querySelector('input[type="file"]');
+        const uploadArea = fileInput.closest('.border-dashed');
 
+        uploadArea.addEventListener('click', () => fileInput.click());
 
-        <script>
-            // File upload interaction
-            document.addEventListener('DOMContentLoaded', function () {
-                const fileInput = document.querySelector('input[type="file"]');
-                const uploadArea = fileInput.closest('.border-dashed');
+        fileInput.addEventListener('change', function (e) {
+            const fileName = e.target.files[0]?.name;
+            const textContainer = uploadArea.querySelector('.text-sm');
 
-                uploadArea.addEventListener('click', () => fileInput.click());
-
-                fileInput.addEventListener('change', function (e) {
-                    const fileName = e.target.files[0]?.name;
-                    const textContainer = uploadArea.querySelector('.text-sm');
-
-                    if (fileName) {
-                        textContainer.innerHTML = `
+            if (fileName) {
+                textContainer.innerHTML = `
                 <span class="font-medium text-green-600">File terpilih: ${fileName}</span>
                 <p class="text-xs text-gray-500 mt-1">Klik untuk mengganti</p>
             `;
-                    }
-                });
+            }
+        });
+    });
+</script>
+
+<!-- Toastify -->
+<script>
+    document.getElementById("productForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        let formData = new FormData(this);
+        let response = await fetch("", {
+            method: "POST",
+            body: formData,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+        let data = await response.json();
+        
+        // Hapus toast lama jika ada
+        const existingToast = document.querySelector('.custom-toast-container');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        // Buat toast element dengan Tailwind
+        const toastContainer = document.createElement('div');
+        toastContainer.className = 'custom-toast-container fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition-all duration-500 ease-out';
+        
+        const isSuccess = data.status === "success";
+        const bgClass = isSuccess ? 'bg-emerald-500' : 'bg-rose-500';
+        const iconClass = isSuccess ? 'text-emerald-100' : 'text-rose-100';
+        const icon = isSuccess ? 
+            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' :
+            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        
+        toastContainer.innerHTML = `
+            <div class="flex items-center p-4 max-w-sm ${bgClass} text-white rounded-xl shadow-lg backdrop-blur-sm border border-white/10 transform scale-95 transition-transform duration-300">
+                <div class="flex-shrink-0 ${iconClass}">
+                    ${icon}
+                </div>
+                <div class="ml-3 text-sm font-medium">
+                    ${data.message}
+                </div>
+                <button class="ml-auto -mx-1.5 -my-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg p-1.5 transition-colors duration-200" onclick="hideToast(this)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        `;
+        
+        // Tambahkan ke DOM
+        document.body.appendChild(toastContainer);
+        
+        // Smooth entrance animation
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                toastContainer.classList.remove('translate-x-full', 'opacity-0');
+                toastContainer.classList.add('translate-x-0', 'opacity-100');
+                
+                // Scale animation untuk inner div
+                const innerDiv = toastContainer.querySelector('div div');
+                innerDiv.classList.remove('scale-95');
+                innerDiv.classList.add('scale-100');
             });
-        </script>
+        });
+        
+        // Auto hide setelah 2 detik dengan smooth exit
+        setTimeout(() => {
+            hideToast(toastContainer.querySelector('button'));
+        }, 2000);
+        
+        // Auto redirect untuk success
+        if (data.status === "success") {
+            setTimeout(() => {
+                window.location.href = "{% url 'product_list' %}";
+            }, 1500);
+        }
+    });
 
-    </div>
-</body>
-
-</html>
+    // Function untuk smooth hide animation
+    function hideToast(button) {
+        const toastContainer = button.closest('.custom-toast-container');
+        if (toastContainer) {
+            // Exit animation
+            toastContainer.classList.add('translate-x-full', 'opacity-0');
+            
+            // Scale down animation
+            const innerDiv = toastContainer.querySelector('div div');
+            innerDiv.classList.remove('scale-100');
+            innerDiv.classList.add('scale-95');
+            
+            // Remove from DOM setelah animasi selesai
+            setTimeout(() => {
+                if (toastContainer.parentNode) {
+                    toastContainer.remove();
+                }
+            }, 500); // Sesuai dengan duration transition
+        }
+    }
+</script>
+{% endblock %}
