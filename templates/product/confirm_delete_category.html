@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Kategori Form{% endblock %}
+{% block title %}Hapus kategori?{% endblock %}
 
 {% block content %}
 {% load widget_tweaks %}
@@ -8,91 +8,52 @@
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-gray-200 mb-4">
         <div class="text-center md:text-left space-y-2 mb-4">
-            <h1 class="text-xl font-semibold text-gray-800">{% if category %}Edit Kategori{% else %}Tambah
-                Kategori{%endif %}</h1>
-            <p class="text-gray-600 text-sm">{% if category %}Edit{% else %}Tambah{% endif %} informasi kategori produk
-                untuk dimasukkan ke katalog produk
+            <h1 class="text-xl font-semibold text-gray-800">Hapus Kategori</h1>
+            <p class="text-gray-600 text-sm">Apakah kamu yakin ingin menghapus kategori <strong>{{ category.name }}</strong>?
             </p>
         </div>
     </div>
 
-    <div class="flex md:flex-row mt-8">
-        <div class="md:w-1/2">
-            <h1 class="text-gray-800">Informasi Kategori</h1>
-            <p class="text-gray-600 text-sm">Pastikan informasi kategori yang dimasukkan benar</p>
+    <form id="categoryForm" action="{% url 'delete_category' category.id %}" method="post">
+        {% csrf_token %}
+        <div class="mt-4 flex justify-start gap-3">
+            <a href="{% url 'category_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md 
+      text-gray hover:bg-gray-100 focus:outline-none 
+      focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 no-print cursor-pointer">Batal</a>
+
+            <button id="submitBtn" type="submit"
+                class="bg-rose-100 text-rose-600 hover:bg-rose-200 transition-colors inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md cursor-pointer">
+                <span id="btnText">
+                    Hapus
+                </span>
+                <svg id="btnSpinner" class="hidden ml-2 w-4 h-4 text-white animate-spin"
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+            </button>
         </div>
+    </form>
 
-        <div class="md:w-1/2">
-            <form id="categoryForm" method="post" enctype="multipart/form-data"
-                action="{% if category %}{% url 'edit_category' category.id %}{% else %}{% url 'add_category' %}{% endif %}">
-                {% csrf_token %}
-
-                <!-- Nama -->
-                <div class="mb-4">
-                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        Nama Kategori
-                    </label>
-                    {{ form.name }}
-                    {% if form.name.errors %}
-                    <p class="text-sm text-red-600 mt-1">{{ form.name.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <!-- Deskripsi -->
-                <div class="mb-4">
-                    <label for="{{ form.description.id_for_label }}"
-                        class="block text-sm font-medium text-gray-700 mb-1">
-                        Deskripsi
-                    </label>
-                    {{ form.description }}
-                    {% if form.description.errors %}
-                    <p class="text-sm text-red-600 mt-1">{{ form.description.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <div class="flex justify-end gap-2 mt-4">
-                    <a href="{% url 'category_list' %}"
-                        class="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300">
-                        Batal
-                    </a>
-
-                    <button id="submitBtn" type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium 
-             rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none 
-             focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
-                        <span id="btnText">
-                            {% if category %} Perbarui Kategori {% else %} Simpan Kategori {% endif %}
-                        </span>
-                        <svg id="btnSpinner" class="hidden ml-2 w-4 h-4 text-white animate-spin"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                            </circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                        </svg>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
     <!-- Container Toast -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2 overflow-hidden"></div>
 </div>
 
 <!-- Button Loading State -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-    const form = document.getElementById("categoryForm");
-    const submitBtn = document.getElementById("submitBtn");
-    const btnText = document.getElementById("btnText");
-    const btnSpinner = document.getElementById("btnSpinner");
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("categoryForm");
+        const submitBtn = document.getElementById("submitBtn");
+        const btnText = document.getElementById("btnText");
+        const btnSpinner = document.getElementById("btnSpinner");
 
-    form.addEventListener("submit", function() {
-        submitBtn.disabled = true;
-        //btnText.textContent = "Menyimpan...";
-        btnSpinner.classList.remove("hidden");
+        form.addEventListener("submit", function () {
+            submitBtn.disabled = true;
+            btnText.textContent = "Menghapus...";
+            btnSpinner.classList.remove("hidden");
+        });
     });
-});
 </script>
-
 
 <!-- toast -->
 <script>
@@ -169,5 +130,4 @@
         setTimeout(() => toast.remove(), 600);
     }
 </script>
-
 {% endblock %}

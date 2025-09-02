@@ -4,60 +4,6 @@
 
 {% block content %}
 {% load widget_tweaks %}
-<style>
-    /* Header style: gray text, not bold */
-    table.dataTable thead th {
-        background-color: #f9fafb;
-        /* Tailwind's gray-50 */
-        color: #6b7280 !important;
-        /* Tailwind's gray-500 */
-        font-weight: 400 !important;
-        /* Normal, not bold */
-        font-size: 0.875rem !important;
-        /* text-sm */
-        padding: 6px 8px !important;
-        white-space: nowrap;
-    }
-
-    /* Table body cell style */
-    table.dataTable tbody td {
-        font-size: 0.875rem !important;
-        /* text-sm */
-        padding: 4px 8px !important;
-        white-space: nowrap;
-        vertical-align: middle;
-    }
-
-    /* Full width and auto layout */
-    table.dataTable {
-        width: 100% !important;
-        table-layout: auto;
-    }
-
-    /* Align details icon center if responsive collapse is used */
-    table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before {
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .currency {
-        font-family: 'Courier New', monospace;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    .animate-spin {
-        animation: spin 1s linear infinite;
-    }
-</style>
 <div class="w-full text-gray-800 p-8 bg-gray-50 rounded-md">
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-gray-200 mb-4">
@@ -82,6 +28,22 @@
     </div>
 
 
+    <div class="flex flex-row-reverse justify-between items-center mb-4">
+        <!-- Search -->
+        <input id="searchInput" type="text" placeholder="Cari produk..."
+            class="px-3 py-2 border border-gray-300 rounded text-sm">
+
+        <!-- Page Size -->
+        <div>
+            <span class="text-sm text-gray-600">Tampilkan</span>
+            <select id="rowsPerPage" class="px-2 py-1 border border-gray-300 rounded text-sm">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+            </select>
+            <span class="text-sm text-gray-600">entri</span>
+        </div>
+    </div>
     <div class="overflow-x-auto w-full py-4">
         <table id="records-table" class="table-auto w-full text-sm whitespace-nowrap divide-y divide-gray-200">
             <thead class="bg-gray-100">
@@ -110,7 +72,7 @@
                             </a>
                             <!-- Separator -->
                             <span class="text-gray-300">|</span>
-                            <a href="{% url 'delete_category' category.id %}" class="delete-record cursor-pointer
+                            <a href="{% url 'confirm_delete_category' category.id %}" class="delete-record cursor-pointer
                                             text-red-600 hover:text-red-800 active:text-red-900
                                             font-medium text-sm
                                             py-1
@@ -123,6 +85,11 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    <!-- Pagination + Info -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2">
+        <div id="tableInfo" class="text-sm text-gray-600"></div>
+        <div id="pagination" class="flex space-x-2"></div>
     </div>
 
 </div>
@@ -143,39 +110,92 @@
     });
 </script>
 
-<!--datatables-->
+<!--table-->
 <script>
-    $(document).ready(function () {
-        $('#records-table').DataTable({
-            responsive: {
-                details: { type: 'column', target: 'tr' }
-            },
-            paging: false,           // Disable pagination
-            lengthChange: false,     // Hide "Show entries"
-            language: {
-                search: "Search:",
-                info: "Showing _TOTAL_ entries",
-                zeroRecords: "No records found"
-            },
-            columnDefs: [
-                { targets: '_all', className: "px-2 py-1" }
-            ],
-            dom:
-                // Only search bar on top, and info on bottom
-                '<"flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4 mb-4"f>' +
-                'rt' +
-                '<"text-sm text-gray-600 mt-4"i>',
-            initComplete: function () {
-                $('.dataTables_filter label').addClass('text-sm font-medium text-gray-700');
-                $('.dataTables_filter input').addClass('ml-2 px-3 py-2 border border-gray-300 rounded text-sm');
-                $('.dataTables_info').addClass('text-sm text-gray-600 mt-2');
-            },
+    document.addEventListener("DOMContentLoaded", function () {
+        const table = document.getElementById("records-table");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+        const searchInput = document.getElementById("searchInput");
+        const rowsPerPageSelect = document.getElementById("rowsPerPage");
+        const pagination = document.getElementById("pagination");
+        const tableInfo = document.getElementById("tableInfo");
+
+        let currentPage = 1;
+        let rowsPerPage = parseInt(rowsPerPageSelect.value);
+        let filteredRows = [...rows];
+        let sortDirection = 1; // 1 = asc, -1 = desc
+
+        function renderTable() {
+            tbody.innerHTML = "";
+
+            if (filteredRows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">Data tidak ditemukan</td></tr>`;
+                tableInfo.textContent = "Showing 0 to 0 of 0 entries";
+                pagination.innerHTML = "";
+                return;
+            }
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = Math.min(start + rowsPerPage, filteredRows.length);
+
+            filteredRows.slice(start, end).forEach(row => tbody.appendChild(row));
+
+            tableInfo.textContent = `Showing ${start + 1} to ${end} of ${filteredRows.length} entries`;
+            renderPagination();
+        }
+
+        function renderPagination() {
+            pagination.innerHTML = "";
+            const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement("button");
+                btn.textContent = i;
+                btn.className = `px-3 py-1 rounded ${i === currentPage ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`;
+                btn.addEventListener("click", () => {
+                    currentPage = i;
+                    renderTable();
+                });
+                pagination.appendChild(btn);
+            }
+        }
+
+        // Search filter
+        searchInput.addEventListener("input", function () {
+            const term = this.value.toLowerCase();
+            filteredRows = rows.filter(row => row.textContent.toLowerCase().includes(term));
+            currentPage = 1;
+            renderTable();
         });
 
-        // Fitur: Cek semua
-        $('#select-all').on('click', function () {
-            $('.row-checkbox').prop('checked', this.checked);
+        // Change rows per page
+        rowsPerPageSelect.addEventListener("change", function () {
+            rowsPerPage = parseInt(this.value);
+            currentPage = 1;
+            renderTable();
         });
+
+        // Sorting
+        table.querySelectorAll("th[data-sort]").forEach(th => {
+            th.addEventListener("click", function () {
+                const colIndex = parseInt(this.dataset.sort);
+                sortDirection *= -1; // toggle asc/desc
+                filteredRows.sort((a, b) => {
+                    const textA = a.children[colIndex].textContent.trim();
+                    const textB = b.children[colIndex].textContent.trim();
+                    return textA.localeCompare(textB, undefined, { numeric: true }) * sortDirection;
+                });
+                currentPage = 1;
+                renderTable();
+            });
+        });
+
+        // Init
+        renderTable();
     });
 </script>
 

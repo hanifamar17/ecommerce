@@ -50,4 +50,5 @@ class ProductForm(forms.ModelForm):
                 'class': 'w-full text-sm px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200',
                 'required': 'required',
             }),
+            'image': forms.ClearableFileInput(attrs={'class': 'hidden'})
         }

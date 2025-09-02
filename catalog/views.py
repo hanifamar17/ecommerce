@@ -15,7 +15,8 @@ def admin_dashboard(request):
 @login_required
 def category_list(request):
     category = Category.objects.all()
-    category_form = CategoryForm()    
+    category_form = CategoryForm() 
+
     return render(request, 'product/category.html', {
         'categories': category,
         'category_form': category_form
@@ -26,10 +27,12 @@ def category_list(request):
 def add_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST, request.FILES)
+
         if form.is_valid():
             form.save()
-            return JsonResponse({'status': 'success', 'message': 'Kategori berhasil ditambahkan.'})    
-        return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
+            return JsonResponse({'status': 'success', 'message': 'Kategori berhasil ditambahkan.'})  
+        else:  
+            return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
     form = CategoryForm()
     return render(request, 'product/category_form.html', {'form': form})
 
@@ -46,12 +49,22 @@ def edit_category(request, pk):
     form = CategoryForm(instance=category)
     return render(request, 'product/category_form.html', {'form': form, 'category': category})
 
+#confirm delete
+@login_required
+def confirm_delete_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    return render(request, "product/confirm_delete_category.html", {"category": category})
+
 #delete
 @login_required
 def delete_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
-    category.delete()
-    return redirect('category_list')
+    if request.method == 'POST':
+        category.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success', 'message': 'Kategori berhasil dihapus.'})
+        return redirect('category_list')
+    return HttpResponseBadRequest('Invalid request method.')
 
 
 #CRUD PRODUCT
@@ -107,11 +120,13 @@ def edit_product(request, pk):
         form = ProductForm(instance=product)
     return render(request, 'product/product_form.html', {'form': form, 'title': 'Edit Produk'})  
 
-#delete
+#confirm delete
+@login_required
 def confirm_delete_product(request, pk):
     product = get_object_or_404(Products, pk=pk)
     return render(request, "product/confirm_delete_product.html", {"product": product})
 
+#delete
 @login_required
 def delete_product(request, pk):
     product = get_object_or_404(Products, pk=pk)

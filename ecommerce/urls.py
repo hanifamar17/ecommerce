@@ -28,6 +28,7 @@ urlpatterns = [
     path('categories/', views.category_list, name='category_list'),
     path('category/add/', views.add_category, name='add_category'),
     path('category/edit/<int:pk>/', views.edit_category, name='edit_category'),
+    path('category/confirm-delete/<int:pk>/', views.confirm_delete_category, name='confirm_delete_category'),
     path('category/delete/<int:pk>/', views.delete_category, name='delete_category'),
 
     #crud product
