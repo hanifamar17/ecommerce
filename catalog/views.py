@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Products
 from django.contrib.auth.decorators import login_required
 from .forms import CategoryForm, ProductForm
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.template.loader import render_to_string
 
 # Create your views here.
@@ -60,7 +60,8 @@ def product_list(request):
     product= Products.objects.all()
     category = Category.objects.all()
     product_form = ProductForm()
-    category_form = CategoryForm()    
+    category_form = CategoryForm()   
+
     return render(request, 'product/product.html', {
         'products': product,
         'categories': category,
@@ -72,6 +73,7 @@ def product_list(request):
 @login_required
 def detail_product(request, pk):
     product = get_object_or_404(Products, pk=pk)
+
     return render(request, 'product/detail_product.html', {'product': product})
 
 #add
@@ -79,6 +81,7 @@ def detail_product(request, pk):
 def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
+
         if form.is_valid():
             form.save()
             return JsonResponse({'status': 'success', 'message': 'Produk berhasil ditambahkan.'})
@@ -94,18 +97,28 @@ def edit_product(request, pk):
     product = get_object_or_404(Products, pk=pk)
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
+
         if form.is_valid():
             form.save()
-            return redirect('product_list')
+            return JsonResponse({'status': 'success', 'message': 'Produk berhasil diperbarui.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
     else:
         form = ProductForm(instance=product)
     return render(request, 'product/product_form.html', {'form': form, 'title': 'Edit Produk'})  
 
 #delete
+def confirm_delete_product(request, pk):
+    product = get_object_or_404(Products, pk=pk)
+    return render(request, "product/confirm_delete_product.html", {"product": product})
+
 @login_required
 def delete_product(request, pk):
     product = get_object_or_404(Products, pk=pk)
+
     if request.method == 'POST':
         product.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success', 'message': 'Produk berhasil dihapus.'})
         return redirect('product_list')
-    return render(request, 'product/confirm_delete.html', {'product':product}) 
+    return HttpResponseBadRequest('Invalid request method.') 
