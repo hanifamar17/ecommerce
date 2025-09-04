@@ -42,7 +42,8 @@ urlpatterns = [
 
     #STORE SECTION
     path('', store_views.landing_page, name='landing_page'),
-    path('stor/products/', store_views.all_products, name='all_products'),
+    path('store/products/', store_views.all_products, name='all_products'),
+    path('store/product/<int:pk>/', store_views.product_detail, name='product_detail'),
 
 ]
 

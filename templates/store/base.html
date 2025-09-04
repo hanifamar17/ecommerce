@@ -64,8 +64,8 @@
             <div class="flex justify-between items-center h-14">
                 <h1 class="text-lg font-medium tracking-wide">My Store</h1>
                 <div class="hidden md:flex items-center space-x-6 text-sm">
-                    <a href="#home" class="text-gray-600 hover:text-gray-900 transition-colors">Beranda</a>
-                    <a href="#products" class="text-gray-600 hover:text-gray-900 transition-colors">Produk</a>
+                    <a href="{% url 'landing_page' %}" class="text-gray-600 hover:text-gray-900 transition-colors">Beranda</a>
+                    <a href="{% url 'all_products' %}" class="text-gray-600 hover:text-gray-900 transition-colors">Produk</a>
                     <a href="#about" class="text-gray-600 hover:text-gray-900 transition-colors">Tentang</a>
                     <button
                         class="bg-gray-900 text-white px-4 py-1.5 rounded-md text-sm hover:bg-gray-800 transition-colors">

@@ -1,0 +1,56 @@
+{% extends "store/base.html" %}
+
+{% block title %}wkwk cloth{% endblock %}
+
+{% block content %}
+{% load widget_tweaks %}
+<div class="w-full">
+    <div class="p-6 mt-6 sm:10 lg:p-16">
+        <!-- Breadcrumb -->
+        <nav class="my-6">
+            <ol class="flex items-center space-x-2 text-sm text-gray-600">
+                <li><a href="{% url 'landing_page' %}" class="hover:text-gray-900">Beranda</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="{% url 'all_products' %}" class="hover:text-gray-900">Semua Produk</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-gray-900">Detail Produk</li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-light text-gray-900 mb-1">Semua Produk</h1>
+                <p class="text-sm text-gray-600">Temukan koleksi fashion terbaik kami</p>
+            </div>
+
+            <!-- Mobile Filter Toggle -->
+            <button id="mobileFilterToggle"
+                class="md:hidden mt-4 flex items-center text-sm text-gray-700 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                    </path>
+                </svg>
+                Filter & Sort
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="rounded-lg shadow">
+        </div>
+        <div>
+            <h1 class="text-2xl font-bold mb-3">{{ product.name }}</h1>
+            <p class="text-gray-600 mb-2">Kategori: {{ product.category.name }}</p>
+            <p class="text-lg font-semibold mb-4">Rp {{ product.price }}</p>
+            <p class="text-gray-700 mb-6">{{ product.description }}</p>
+
+            <button class="px-5 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700">
+                Tambah ke Keranjang
+            </button>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}

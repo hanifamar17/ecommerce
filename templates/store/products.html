@@ -31,7 +31,7 @@
     }
 </style>
 <div class="w-full">
-    <div class="p-6 sm:10 lg:p-16">
+    <div class="p-6 mt-6 sm:10 lg:p-16">
         <!-- Breadcrumb -->
         <nav class="my-6">
             <ol class="flex items-center space-x-2 text-sm text-gray-600">
@@ -43,9 +43,16 @@
 
         <!-- Page Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
-            <div>
-                <h1 class="text-2xl font-light text-gray-900 mb-1">Semua Produk</h1>
-                <p class="text-sm text-gray-600">Temukan koleksi fashion terbaik kami</p>
+            <div class="flex flex-row justify-between w-full">
+                <div>
+                    <h1 class="text-2xl font-light text-gray-900 mb-1">Semua Produk</h1>
+                    <p class="text-sm text-gray-600">Temukan koleksi fashion terbaik kami</p>
+                </div>
+                <a class="self-center cursor-pointer text-slate-800 text-sm font-medium hover:text-blue-600 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+            </a>
             </div>
 
             <!-- Mobile Filter Toggle -->
@@ -78,13 +85,13 @@
                         <label class="block text-sm font-medium text-gray-900 mb-3">Kategori</label>
                         <div class="space-y-2">
                             <label class="flex items-center text-sm">
-                                <input type="radio" name="category" value=""
+                                <input type="checkbox" name="categories" value=""
                                     class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
                                 <span class="text-gray-700">Semua</span>
                             </label>
                             {% for cat in categories %}
                             <label class="flex items-center text-sm">
-                                <input type="radio" name="category" value="{{ cat.id }}"
+                                <input type="checkbox" name="categories" value="{{ cat.id }}" {% if cat.id in selected_categories %}checked{% endif %}
                                     class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
                                 <span class="text-gray-700">{{ cat.name }}</span>
                             </label>
@@ -92,7 +99,7 @@
                         </div>
                     </div>
 
-                    <!-- Price Range -->
+                    <!-- Price Range
                     <div class="filter-section">
                         <label class="block text-sm font-medium text-gray-900 mb-3">Harga</label>
                         <div class="space-y-2">
@@ -123,7 +130,7 @@
                                 <span class="text-gray-700">> Rp 500.000</span>
                             </label>
                         </div>
-                    </div>
+                    </div>-->
 
                     <!-- Sort Options -->
                     <div class="filter-section">
@@ -134,7 +141,6 @@
                             <option value="latest">Terbaru</option>
                             <option value="price_asc">Harga Terendah</option>
                             <option value="price_desc">Harga Tertinggi</option>
-                            <option value="name_asc">Nama A-Z</option>
                         </select>
                     </div>
 
@@ -163,7 +169,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- Quick Sort for Desktop -->
+                    <!-- Quick Sort for Desktop 
                     <div class="hidden md:flex items-center space-x-2">
                         <span class="text-sm text-gray-600">Urutkan:</span>
                         <select name="quick_sort" id="quickSort"
@@ -173,7 +179,7 @@
                             <option value="price_asc">Harga ↑</option>
                             <option value="price_desc">Harga ↓</option>
                         </select>
-                    </div>
+                    </div>-->
                 </div>
 
                 <!-- Active Filters -->
@@ -190,10 +196,10 @@
                         </button>
                     </span>
                     {% endif %}
-                    {% if request.GET.category %}
+                    {% for cat in selected_category_objs %}
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
-                        Kategori: {{ request.GET.category }}
-                        <button type="button"
+                        {{ cat.name }}
+                        <button type="button" data-remove-category="{{ cat.id }}"
                             class="ml-2 w-4 h-4 hover:bg-gray-200 rounded-full flex items-center justify-center">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -201,31 +207,23 @@
                             </svg>
                         </button>
                     </span>
-                    {% endif %}
+                    {% endfor %}
                 </div>
 
                 <!-- Products Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {% for product in products %}
-                    <div class="group bg-white rounded-lg overflow-hidden border border-gray-100 product-hover">
-                        <a href="#" class="block">
+                    <div
+                        class="group bg-white rounded-lg overflow-hidden border border-gray-100 product-hover h-full flex flex-col">
+                        <a href="{% url 'product_detail' pk=product.id %}" class="block flex-shrink-0">
                             <div class="relative overflow-hidden">
                                 <img src="{{ product.image.url }}" alt="{{ product.name }}"
-                                    class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-
-                                <!-- Quick Actions (appears on hover) -->
-                                <div
-                                    class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <button
-                                        class="bg-white text-gray-900 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
-                                        Lihat Detail
-                                    </button>
-                                </div>
+                                    class="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300">
 
                                 <!-- Wishlist Button -->
                                 <button
-                                    class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white">
-                                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor"
+                                    class="absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white">
+                                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
@@ -235,20 +233,18 @@
                             </div>
                         </a>
 
-                        <div class="p-4">
+                        <div class="p-3 sm:p-4 flex-grow flex flex-col justify-between">
                             <a href="#" class="block">
                                 <h3
-                                    class="font-medium text-gray-900 mb-1 text-sm hover:text-gray-600 transition-colors">
+                                    class="font-medium text-gray-900 mb-1 text-xs md:text-sm hover:text-gray-600 transition-colors line-clamp-2">
                                     {{ product.name }}
                                 </h3>
                             </a>
+
                             <div class="flex items-center justify-between mt-2">
-                                <span class="font-medium text-gray-900 text-sm">
-                                    Rp {{ product.price|floatformat:0 }}
+                                <span class="font-semibold text-gray-900 text-xs md:text-sm">
+                                    Rp{{ product.price|floatformat:0 }}
                                 </span>
-                                <button class="text-xs text-gray-600 hover:text-gray-900 transition-colors">
-                                    + Keranjang
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -314,28 +310,22 @@
                         </div>
 
                         <div class="filter-section">
-                            <label class="block text-sm font-medium text-gray-900 mb-3">Kategori</label>
-                            <select name="category"
-                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400">
-                                <option value="">Semua Kategori</option>
-                                {% for cat in categories %}
-                                <option value="{{ cat.id }}">{{ cat.name }}</option>
-                                {% endfor %}
-                            </select>
+                        <label class="block text-sm font-medium text-gray-900 mb-3">Kategori</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" name="categories" value=""
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">Semua</span>
+                            </label>
+                            {% for cat in categories %}
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" name="categories" value="{{ cat.id }}" {% if cat.id in selected_categories %}checked{% endif %}
+                                    class="w-3 h-3 text-gray-600 border-gray-300 focus:ring-gray-500 mr-2">
+                                <span class="text-gray-700">{{ cat.name }}</span>
+                            </label>
+                            {% endfor %}
                         </div>
-
-                        <div class="filter-section">
-                            <label class="block text-sm font-medium text-gray-900 mb-3">Harga</label>
-                            <select name="price_range"
-                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-400">
-                                <option value="">Semua Harga</option>
-                                <option value="0-100000">
-                                    < Rp 100.000</option>
-                                <option value="100000-250000">Rp 100.000 - 250.000</option>
-                                <option value="250000-500000">Rp 250.000 - 500.000</option>
-                                <option value="500000-">> Rp 500.000</option>
-                            </select>
-                        </div>
+                    </div>
 
                         <div class="filter-section">
                             <label class="block text-sm font-medium text-gray-900 mb-3">Urutkan</label>
@@ -345,7 +335,6 @@
                                 <option value="latest">Terbaru</option>
                                 <option value="price_asc">Harga Terendah</option>
                                 <option value="price_desc">Harga Tertinggi</option>
-                                <option value="name_asc">Nama A-Z</option>
                             </select>
                         </div>
 
@@ -465,4 +454,27 @@
         });
     });
 </script>
+
+<!--hapus filter kategori-->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll("[data-remove-category]").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const categoryId = this.getAttribute("data-remove-category");
+            const url = new URL(window.location.href);
+            const params = url.searchParams;
+            
+            // hapus kategori tertentu
+            let categories = params.getAll("categories");
+            params.delete("categories");
+            categories.filter(c => c !== categoryId)
+                      .forEach(c => params.append("categories", c));
+            
+            // redirect
+            window.location.href = url.pathname + "?" + params.toString();
+        });
+    });
+});
+</script>
+
 {% endblock %}
