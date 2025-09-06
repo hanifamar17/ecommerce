@@ -44,6 +44,8 @@ urlpatterns = [
     path('', store_views.landing_page, name='landing_page'),
     path('store/products/', store_views.all_products, name='all_products'),
     path('store/product/<int:pk>/', store_views.product_detail, name='product_detail'),
+    path('store/add-to-cart/<int:pk>/', store_views.add_to_cart, name='add_to_cart'),
+    path('store/cart/', store_views.cart_view, name='cart_view'),
 
 ]
 

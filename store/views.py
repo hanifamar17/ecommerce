@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from catalog.models import Products, Category
 from django.core.paginator import Paginator
 from django.db.models import Q, Case, When, IntegerField, Sum
+from django.http import JsonResponse
 
 #LANDING PAGE
 def landing_page(request):
@@ -55,6 +56,8 @@ def search_products(queryset, q):
 def all_products(request):
     products = Products.objects.all()
     categories = Category.objects.all()
+    cart = request.session.get("cart", {})
+    cart_count = sum(item["quantity"] for item in cart.values())
 
     q = request.GET.get("q")
     if q:
@@ -82,6 +85,7 @@ def all_products(request):
         "categories": categories,
         "selected_categories": selected_categories,
         "selected_category_objs": selected_category_objs,
+        "cart_count": cart_count,
     })
 
 #detail produk
@@ -90,3 +94,71 @@ def product_detail(request, pk):
     category = Category.objects.all()
 
     return render(request, 'store/product_detail.html', {'product': product, 'categories': category})
+
+#tambah ke keranjang
+def add_to_cart(request, pk):    
+    if request.method == "POST":
+        product = get_object_or_404(Products, pk=pk)
+
+        # cek stok
+        if product.stock <= 0:
+            return JsonResponse({
+                "status": "error",
+                "message": "Stok produk tidak mencukupi."
+            }, status=400)
+
+        # ambil keranjang dari session
+        cart = request.session.get("cart", {})
+
+        # tambah/update produk di cart
+        if str(product.id) in cart:
+            cart[str(product.id)]["quantity"] += 1
+        else:
+            cart[str(product.id)] = {
+                "name": product.name,
+                "price": float(product.price),
+                "quantity": 1,
+                "image_url": product.image.url if product.image else ""
+            }
+
+        # kurangi stok produk
+        product.stock -= 1
+        product.save()
+
+        # simpan ke session
+        request.session["cart"] = cart
+        request.session.modified = True
+
+        return JsonResponse({
+            "status": "success",
+            "message": f"{product.name} berhasil ditambahkan ke keranjang!"
+        })
+
+    return JsonResponse({
+        "status": "error",
+        "message": "Metode tidak valid!"
+    }, status=405)
+
+
+
+#keranjang belanja
+def cart_view(request):
+    cart = request.session.get("cart", {})
+    cart_items = []
+    cart_count = sum(item["quantity"] for item in cart.values())
+    
+    total = 0 
+    for key, item in cart.items():
+        subtotal = item["price"] * item["quantity"] 
+        total += subtotal
+
+        cart_items.append({
+            "id": key,
+            "name": item["name"],
+            "price": item["price"],
+            "quantity": item["quantity"],
+            "image_url": item.get("image_url", ""),
+            "subtotal": subtotal
+        })
+
+    return render(request, 'store/cart.html', {'cart_items': cart_items, 'cart_count': cart_count, 'total': total})
