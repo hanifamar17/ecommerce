@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from catalog.models import Products, Category
 from django.core.paginator import Paginator
 from django.db.models import Q, Case, When, IntegerField, Sum
@@ -129,17 +129,18 @@ def add_to_cart(request, pk):
         request.session["cart"] = cart
         request.session.modified = True
 
+        cart_count = sum(item["quantity"] for item in cart.values())
+
         return JsonResponse({
             "status": "success",
-            "message": f"{product.name} berhasil ditambahkan ke keranjang!"
+            "message": f"{product.name} berhasil ditambahkan ke keranjang!",
+            "cart_count": cart_count
         })
 
     return JsonResponse({
         "status": "error",
         "message": "Metode tidak valid!"
     }, status=405)
-
-
 
 #keranjang belanja
 def cart_view(request):
@@ -162,3 +163,39 @@ def cart_view(request):
         })
 
     return render(request, 'store/cart.html', {'cart_items': cart_items, 'cart_count': cart_count, 'total': total})
+
+#update cart
+def update_cart(request):
+    if request.method == 'POST':
+        product_id = str(request.POST.get("product_id"))
+        action = request.POST.get("action")
+
+        cart = request.session.get("cart", {})
+        product = get_object_or_404(Products, pk=product_id)
+        
+        if product_id not in cart:
+            return JsonResponse({"status": "success", "message": "Produk tidak ada di keranjang" })
+        
+        if action == "increase":
+            if product.stock > 0:
+                cart[product_id]["quantity"] += 1
+                product.stock -= 1
+                product.save()
+                message = f"Stok {product.name} bertambah."
+            else:
+                return JsonResponse({"status": "error", "message": "Stok habis!"})
+        elif action == "decrease":
+            cart[product_id]["quantity"] -= 1
+            product.stock += 1
+            product.save()
+
+            if cart[product_id]["quantity"] <= 0:
+                del cart[product_id]
+                message = f"{product.name} dihapus dari keranjang."
+            else:
+                message = f"Stok {product.name} dikurangi."
+            
+        request.session["cart"] = cart
+        return JsonResponse({"status": "success", "message": message})
+    
+    return JsonResponse({"status": "success", "message": "Metode tidak valid"})

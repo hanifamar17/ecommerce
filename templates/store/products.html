@@ -61,9 +61,11 @@
                     </svg>
                 
                     {% if cart_count > 0 %}
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-gray-900 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                         {{ cart_count }}
                     </span>
+                    {% else %}
+                    <span id="cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full"></span>
                     {% endif %}
                 </a>
             </div>
@@ -504,25 +506,40 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <!-- toast -->
 <script>
+    //ad to cart & cart count update
     document.querySelectorAll(".add-to-cart-form").forEach(form => {
-        form.addEventListener("submit", async function(e) {
-            e.preventDefault();
-            const formData = new FormData(form);
-        
-            const response = await fetch(form.action, {
-                method: "POST",
-                body: formData,
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-            });
-        
-            const data = await response.json();
-            if (data.status === "success") {
-                showToast("success", data.message);
-            } else {
-                showToast("error", data.message);
-            }
+    form.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+    
+        const response = await fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
         });
+    
+        const data = await response.json();
+        if (data.status === "success") {
+            showToast("success", data.message);
+
+            // 🔹 Update cart badge
+            const cartBadge = document.getElementById("cart-count");
+            if (data.cart_count > 0) {
+                cartBadge.textContent = data.cart_count;
+                cartBadge.classList.remove("hidden");
+            } else {
+                cartBadge.classList.add("hidden");
+            }
+
+            setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+
+        } else {
+            showToast("error", data.message);
+        }
     });
+});
 
     // Helper function buat bikin toast
     function showToast(type, message) {

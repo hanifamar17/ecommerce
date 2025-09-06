@@ -46,6 +46,7 @@ urlpatterns = [
     path('store/product/<int:pk>/', store_views.product_detail, name='product_detail'),
     path('store/add-to-cart/<int:pk>/', store_views.add_to_cart, name='add_to_cart'),
     path('store/cart/', store_views.cart_view, name='cart_view'),
+    path('store/cart/update/', store_views.update_cart, name='update_cart'),
 
 ]
 

@@ -19,57 +19,254 @@
 
         <!-- Page Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
-            <div>
-                <h1 class="text-2xl font-light text-gray-900 mb-1">Keranjang Belanja</h1>
-                <p class="text-sm text-gray-600">Periksa kembali produk dan segera lakukan pemesanan</p>
+            <div class="flex flex-row justify-between w-full">
+                <div>
+                    <h1 class="text-2xl font-light text-gray-900 mb-1">Keranjang Belanja</h1>
+                    <p class="text-sm text-gray-600">Periksa kembali produk dan segera lakukan pemesanan</p>
+                </div>
+                <span class="text-2xl text-gray-500">{{ cart_count }} item</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {% if cart_items %}
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-600 border">
-                    <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
-                        <tr>
-                            <th class="px-4 py-3">Produk</th>
-                            <th class="px-4 py-3">Harga</th>
-                            <th class="px-4 py-3">Qty</th>
-                            <th class="px-4 py-3">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <div class="flex flex-col md:flex-row gap-12">
+            <div class="md:w-3/5">
+                {% if cart_items %}
+                <!-- Cart Items Section -->
+                <div class="space-y-4">
+                    <!-- Cart Items List -->
+                    <div class="space-y-3">
                         {% for item in cart_items %}
-                        <tr class="border-b">
-                            <td class="px-4 py-3 flex items-center gap-2">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                            <div class="flex gap-4">
+                                <!-- Product Image -->
                                 {% if item.image_url %}
-                                <img src="{{ item.image_url }}" alt="{{ item.name }}"
-                                    class="w-10 h-10 object-cover rounded">
+                                <div class="flex-shrink-0">
+                                    <img src="{{ item.image_url }}" alt="{{ item.name }}"
+                                        class="w-20 h-20 object-cover">
+                                </div>
                                 {% endif %}
-                                {{ item.name }}
-                            </td>
-                            <td class="px-4 py-3">Rp{{ item.price|floatformat:0 }}</td>
-                            <td class="px-4 py-3">{{ item.quantity }}</td>
-                            <td class="px-4 py-3 font-semibold">Rp{{ item.subtotal|floatformat:0 }}</td>
-                        </tr>
+
+                                <!-- Product Details -->
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-medium text-gray-900 mb-1 line-clamp-2">{{ item.name }}</h3>
+                                    <p class="text-gray-600 text-xs md:text-sm mb-3">Rp{{ item.price|floatformat:0 }}
+                                    </p>
+
+                                    <!-- Quantity & Remove -->
+                                    <div class="flex items-center justify-between">
+                                        <!-- Quantity Controls -->
+                                        <div class="flex items-center">
+                                            <form method="POST" class="update-cart-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="product_id" value="{{ item.id }}">
+                                                <input type="hidden" name="action" value="decrease">
+                                                <button type="submit"
+                                                    class="w-5 h-5 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 text-gray-600 cursor-pointer">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M20 12H4"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+
+                                            <span class="w-8 text-center text-xs md:text-sm font-medium">{{item.quantity }}</span>
+
+                                            <form method="POST" class="update-cart-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="product_id" value="{{ item.id }}">
+                                                <input type="hidden" name="action" value="increase">
+                                                <button type="submit"
+                                                    class="w-5 h-5 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 text-gray-600 cursor-pointer">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Subtotal -->
+                                <div class="flex-shrink-0 text-right">
+                                    <p class="font-semibold text-gray-900">Rp{{ item.subtotal|floatformat:0 }}</p>
+                                </div>
+                            </div>
+                        </div>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex justify-end mt-4">
-                <div class="text-right">
-                    <p class="text-lg font-semibold">Total: Rp{{ total|floatformat:0 }}</p>
-                    <a href="#" class="mt-2 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        Checkout
+
+            <div class="md:w-2/5">
+                <!-- Order Summary Section -->
+                <div class="space-y-6">
+                    <div class="bg-gray-50 rounded-lg p-1">
+                        <h3 class="text-md md:text-lg font-semibold text-gray-900 mb-4">Ringkasan Pesanan</h3>
+
+                        <div class="space-y-3">
+                            <!-- Subtotal -->
+                            <div class="flex text-xs md:text-sm justify-between text-gray-600">
+                                <span>Subtotal ({{ cart_count }} item)</span>
+                                <span>Rp{{ total|floatformat:0 }}</span>
+                            </div>
+
+                            <!-- Shipping -->
+                            <div class="flex text-xs md:text-sm justify-between text-gray-600">
+                                <span>Ongkos Kirim</span>
+                                <span class="text-sm">Gratis</span>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="border-t border-gray-300 my-4"></div>
+
+                            <!-- Total -->
+                            <div class="flex justify-between font-semibold text-md md:text-lg text-gray-900">
+                                <span>Total</span>
+                                <span>Rp{{ total|floatformat:0 }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Checkout Button -->
+                        <button
+                            class="w-full mt-6 bg-gray-900 text-white hover:bg-gray-800 transition-colors font-medium py-3 px-4 rounded-lg cursor-pointer">
+                            Lanjutkan ke Checkout
+                        </button>
+
+                        <!-- Continue Shopping -->
+                        <a href="{% url 'product_list' %}"
+                            class="block text-center mt-3 text-gray-600 hover:text-gray-800 text-sm">
+                            Lanjutkan Belanja
+                        </a>
+                    </div>
+
+                    <!-- Promo Section -->
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Kode Promo</h4>
+                        <div class="flex gap-2">
+                            <input type="text" placeholder="Masukkan kode promo"
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button
+                                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm font-medium transition-colors">
+                                Terapkan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- Empty Cart -->
+            <div class="md:col-span-2">
+                <div class="text-center py-16">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Keranjang Anda kosong</h3>
+                    <p class="text-gray-500 mb-6">Belum ada produk yang ditambahkan ke keranjang</p>
+                    <a href="{% url 'product_list' %}"
+                        class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                        Mulai Belanja
                     </a>
                 </div>
             </div>
-            {% else %}
-            <p class="text-gray-500">Keranjang masih kosong.</p>
             {% endif %}
         </div>
     </div>
+
+    <!-- Container Toast -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2 overflow-hidden"></div>
 </div>
+
+<!-- toast -->
+<script>
+    document.querySelectorAll(".update-cart-form").forEach(form => {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            let formData = new FormData(this);
+
+            // ambil CSRF token dari input hidden Django
+            let csrfToken = this.querySelector("[name=csrfmiddlewaretoken]").value;
+
+            let response = await fetch("{% url 'update_cart' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": csrfToken
+                }
+            });
+
+            let data = await response.json();
+
+            if (data.status === "success") {
+                showToast("success", data.message);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+            } else {
+                showToast("error", data.message);
+            }
+        });
+    });
+
+    // Helper function buat bikin toast
+    function showToast(type, message) {
+        const container = document.getElementById("toast-container");
+
+        // buat element toast
+        const toast = document.createElement("div");
+        toast.className = `flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow-sm transition-all duration-500 ease-in-out transform translate-x-full opacity-0`;
+        toast.role = "alert";
+
+        const icon = type === "success"
+            ? `<div class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/></svg>
+           </div>`
+            : `<div class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/></svg>
+           </div>`;
+
+        toast.innerHTML = `
+        ${icon}
+        <div class="ms-3 text-sm font-normal">${message}</div>
+        <button type="button" class="ms-auto -mx-1.5 -my-1.5 text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+        </button>
+    `;
+
+        // tombol close
+        toast.querySelector("button").addEventListener("click", () => {
+            hideToast(toast);
+        });
+
+        container.appendChild(toast);
+
+        // animasi masuk
+        setTimeout(() => {
+            toast.classList.remove("translate-x-full", "opacity-0");
+            toast.classList.add("translate-x-0", "opacity-100");
+        }, 50);
+
+        // auto hide
+        setTimeout(() => {
+            hideToast(toast);
+        }, 2500);
+    }
+
+    function hideToast(toast) {
+        toast.classList.remove("translate-x-0", "opacity-100");
+        toast.classList.add("translate-x-full", "opacity-0");
+        setTimeout(() => toast.remove(), 600);
+    }
+</script>
 
 
 {% endblock %}
