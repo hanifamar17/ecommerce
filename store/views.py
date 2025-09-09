@@ -92,8 +92,10 @@ def all_products(request):
 def product_detail(request, pk):
     product = get_object_or_404(Products, pk=pk)
     category = Category.objects.all()
+    cart = request.session.get("cart", {})
+    cart_count = sum(item["quantity"] for item in cart.values())
 
-    return render(request, 'store/product_detail.html', {'product': product, 'categories': category})
+    return render(request, 'store/product_detail.html', {'product': product, 'categories': category, 'cart_count': cart_count})
 
 #tambah ke keranjang
 def add_to_cart(request, pk):    
