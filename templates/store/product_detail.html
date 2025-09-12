@@ -169,24 +169,14 @@
 
         <!-- Additional Product Images -->
         <div class="mb-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 <!-- Loop untuk foto tambahan -->
+                {% for img in product.gallery.all %}
                 <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img src="{{ product.image.url }}" alt="Product view 1"
+                    <img src="{{ img.image.url }}" alt="Gallery view for {{ product.name }}"
                         class="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer">
                 </div>
-                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img src="{{ product.image.url }}" alt="Product view 2"
-                        class="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer">
-                </div>
-                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img src="{{ product.image.url }}" alt="Product view 3"
-                        class="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer">
-                </div>
-                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img src="{{ product.image.url }}" alt="Product view 4"
-                        class="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer">
-                </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -194,11 +184,11 @@
         <div class="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
             <!-- Product Description -->
             <div class="md:w-1/2 bg-white rounded-lg p-8">
-                <div class="border-b border-gray-400 mb-6">
+                <div class="border-b border-gray-400">
                     <h2 class="text-md md:text-lg font-medium text-gray-900 mb-2">Deskripsi Produk
                     </h2>
                 </div>
-                <div class="text-sm md:text-md prose prose-sm text-gray-600 max-w-none">
+                <div class="text-sm md:text-md prose prose-sm text-gray-600 max-w-none leading-relaxed text-justify whitespace-pre-line">
                     <p>{{ product.description }}</p>
                 </div>
             </div>

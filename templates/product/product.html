@@ -49,7 +49,7 @@
                 <tr class="bg-gray-50">
                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Gambar</th>
-                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Kategori</th>
                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Nama</th>
@@ -67,27 +67,28 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 {% for product in products %}
                 <tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 text-sm">
-                    {% if product.image %}
-                    <td class="px-3 py-2 capitalize whitespace-nowrap">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="rounded h-20">
-                    </td>
-                    {% else %}
-                    <td class="px-3 py-2 capitalize whitespace-nowrap">
-                        <div class="w-16 h-20 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <td class="px-3 py-2 whitespace-nowrap">
+                        <div
+                            class="w-20 aspect-square flex items-center justify-center rounded overflow-hidden bg-gray-50">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                class="object-cover w-full h-full">
+                            {% else %}
+                            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                                 <polyline points="21,15 16,10 5,21"></polyline>
                             </svg>
+                            {% endif %}
                         </div>
-                    {% endif %}
+                    </td>
                     {% if product.category %}
                     <td class="px-3 py-2 capitalize whitespace-nowrap">{{ product.category }}</td>
                     {% else %}
                     <td class="px-3 py-2 capitalize whitespace-nowrap text-gray-400 italic">Kategori kosong</td>
                     {% endif %}
                     <td class="px-3 py-2 capitalize whitespace-nowrap">{{ product.name }}</td>
-                    <td class="px-3 py-2 capitalize whitespace-nowrap currency">Rp{{ product.price|floatformat:0|intcomma }}</td>
+                    <td class="px-3 py-2 capitalize whitespace-nowrap currency">Rp{{product.price|floatformat:0|intcomma }}</td>
                     <td class="px-3 py-2 capitalize whitespace-nowrap currency">{{ product.stock }}</td>
                     <td class="px-3 py-2 capitalize whitespace-nowrap">{{ product.updated_at|date:"d M Y H:i" }}</td>
                     <td class="px-3 py-2">

@@ -170,7 +170,7 @@
                     </div>
                     <h3 class="text-lg font-medium text-gray-900 mb-2">Keranjang Anda kosong</h3>
                     <p class="text-gray-500 mb-6">Belum ada produk yang ditambahkan ke keranjang</p>
-                    <a href="{% url 'product_list' %}"
+                    <a href="{% url 'all_products' %}"
                         class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
                         Mulai Belanja
                     </a>
@@ -184,40 +184,8 @@
     <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2 overflow-hidden"></div>
 </div>
 
-<!-- toast -->
+<!-- Script Toast Notification -->
 <script>
-    document.querySelectorAll(".update-cart-form").forEach(form => {
-        form.addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            let formData = new FormData(this);
-
-            // ambil CSRF token dari input hidden Django
-            let csrfToken = this.querySelector("[name=csrfmiddlewaretoken]").value;
-
-            let response = await fetch("{% url 'update_cart' %}", {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                    "X-CSRFToken": csrfToken
-                }
-            });
-
-            let data = await response.json();
-
-            if (data.status === "success") {
-                showToast("success", data.message);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1200);
-            } else {
-                showToast("error", data.message);
-            }
-        });
-    });
-
-    // Helper function buat bikin toast
     function showToast(type, message) {
         const container = document.getElementById("toast-container");
 
@@ -266,6 +234,49 @@
         toast.classList.add("translate-x-full", "opacity-0");
         setTimeout(() => toast.remove(), 600);
     }
+</script>
+
+<!-- Notifikasi toast dari Django Messages -->
+{% if notification %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showToast("{{ notification|escapejs }}", 'error');
+    });
+</script>
+{% endif %}
+
+<!-- Notifikasi toast update cart -->
+<script>
+    document.querySelectorAll(".update-cart-form").forEach(form => {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            let formData = new FormData(this);
+
+            // ambil CSRF token dari input hidden Django
+            let csrfToken = this.querySelector("[name=csrfmiddlewaretoken]").value;
+
+            let response = await fetch("{% url 'update_cart' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": csrfToken
+                }
+            });
+
+            let data = await response.json();
+
+            if (data.status === "success") {
+                showToast("success", data.message);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1200);
+            } else {
+                showToast("error", data.message);
+            }
+        });
+    });
 </script>
 
 

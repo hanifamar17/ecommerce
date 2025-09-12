@@ -148,23 +148,56 @@ def add_to_cart(request, pk):
 def cart_view(request):
     cart = request.session.get("cart", {})
     cart_items = []
-    cart_count = sum(item["quantity"] for item in cart.values())
+    total = 0
+    updated_cart = {}
     
-    total = 0 
-    for key, item in cart.items():
-        subtotal = item["price"] * item["quantity"] 
-        total += subtotal
+    notification_message = None
 
-        cart_items.append({
-            "id": key,
-            "name": item["name"],
-            "price": item["price"],
-            "quantity": item["quantity"],
-            "image_url": item.get("image_url", ""),
-            "subtotal": subtotal
-        })
+    for product_id, item_data in cart.items():
+        try:
+            # Menggunakan get() daripada get_object_or_404()
+            # agar kita bisa menangani sendiri kasus ketika produk tidak ditemukan
+            product = Products.objects.get(pk=product_id)
+            
+            # Perbarui data item di keranjang dengan informasi terbaru dari database
+            item_data["name"] = product.name
+            item_data["price"] = float(product.price)
+            item_data["image_url"] = product.image.url if product.image else ""
 
-    return render(request, 'store/cart.html', {'cart_items': cart_items, 'cart_count': cart_count, 'total': total})
+            subtotal = item_data["price"] * item_data["quantity"]
+            total += subtotal
+
+            cart_items.append({
+                "id": product_id,
+                "name": item_data["name"],
+                "price": item_data["price"],
+                "quantity": item_data["quantity"],
+                "image_url": item_data["image_url"],
+                "subtotal": subtotal
+            })
+
+            updated_cart[str(product.id)] = item_data
+        
+        except Products.DoesNotExist:
+            # Jika produk tidak ditemukan, siapkan pesan notifikasi
+            notification_message = "Keranjang diperbarui: beberapa produk telah dihapus."
+            print(f"Produk dengan ID {product_id} tidak ditemukan. Menghapus dari keranjang.")
+    
+    # Sinkronkan keranjang di session dengan data yang valid
+    if notification_message:
+        request.session["cart"] = updated_cart
+        request.session.modified = True
+    
+    cart_count = sum(item["quantity"] for item in updated_cart.values())
+
+    context = {
+        'cart_items': cart_items,
+        'cart_count': cart_count,
+        'total': total,
+        'notification': notification_message, # Tambahkan pesan notifikasi ke konteks
+    }
+
+    return render(request, 'store/cart.html', context)
 
 #update cart
 def update_cart(request):

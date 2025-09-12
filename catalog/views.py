@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Category, Products
+from .models import Category, Products, ProductImage
 from django.contrib.auth.decorators import login_required
-from .forms import CategoryForm, ProductForm
+from .forms import CategoryForm, ProductForm, ProductImageForm
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.template.loader import render_to_string
+import os
+from django.conf import settings
 
 # Create your views here.
 @login_required
@@ -96,7 +98,17 @@ def add_product(request):
         form = ProductForm(request.POST, request.FILES)
 
         if form.is_valid():
-            form.save()
+            product = form.save(commit=False)
+
+            #gambar utama
+            if "image" in request.FILES:
+                product.image = request.FILES["image"]
+                product.save()
+
+            #galeri produk
+            for img in request.FILES.getlist('gallery_images'):
+                ProductImage.objects.create(product=product, image=img)
+                
             return JsonResponse({'status': 'success', 'message': 'Produk berhasil ditambahkan.'})
         else:
             return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
@@ -106,19 +118,47 @@ def add_product(request):
 
 #edit
 @login_required
+# edit
+@login_required
 def edit_product(request, pk):
     product = get_object_or_404(Products, pk=pk)
+    
+    old_main_image_path = product.image.path if product.image else None
+    
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
 
         if form.is_valid():
-            form.save()
+            # Handle main product image update
+            if 'image' in request.FILES:
+                if old_main_image_path and os.path.exists(old_main_image_path):
+                    os.remove(old_main_image_path)
+                
+                product.image = request.FILES['image']
+            
+            product.save()
+
+            # Handle gallery images update
+            if 'gallery_images' in request.FILES:
+                # Delete old gallery images from disk
+                for gallery_item in product.gallery.all():
+                    if gallery_item.image and os.path.exists(gallery_item.image.path):
+                        os.remove(gallery_item.image.path)
+                
+                # Delete records from the database
+                product.gallery.all().delete()
+                
+                # Save new gallery images
+                for img in request.FILES.getlist('gallery_images'):
+                    ProductImage.objects.create(product=product, image=img)
+
             return JsonResponse({'status': 'success', 'message': 'Produk berhasil diperbarui.'})
         else:
             return JsonResponse({'status': 'error', 'message': 'Form tidak valid', 'errors': form.errors}, status=400)
     else:
         form = ProductForm(instance=product)
-    return render(request, 'product/product_form.html', {'form': form, 'title': 'Edit Produk'})  
+    
+    return render(request, 'product/product_form.html', {'form': form, 'title': 'Edit Produk'})
 
 #confirm delete
 @login_required
@@ -137,3 +177,18 @@ def delete_product(request, pk):
             return JsonResponse({'status': 'success', 'message': 'Produk berhasil dihapus.'})
         return redirect('product_list')
     return HttpResponseBadRequest('Invalid request method.') 
+
+#delete image from gallery
+@login_required
+def delete_product_image(request, pk):
+    image = get_object_or_404(ProductImage, pk=pk)
+    product_id = image.product.pk
+
+    if request.method == "POST":
+        image.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success', 'message': 'Gambar berhasil dihapus.'})
+        return redirect('edit_product', pk=product_id)
+
+    return HttpResponseBadRequest('Invalid request method.')
+

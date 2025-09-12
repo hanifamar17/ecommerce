@@ -31,7 +31,7 @@ class ProductForm(forms.ModelForm):
                 'required': 'required',
             }),
             'description': forms.Textarea(attrs={
-                'rows': 3,
+                'rows': 12,
                 'placeholder': 'Masukkan deskripsi produk...',
                 'class': 'w-full text-sm px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 resize-none',
             }),
@@ -52,3 +52,9 @@ class ProductForm(forms.ModelForm):
             }),
             'image': forms.ClearableFileInput(attrs={'class': 'hidden'})
         }
+
+class ProductImageForm(forms.Form):
+    images = forms.FileField(
+        widget=forms.ClearableFileInput(attrs={'class': 'hidden'}),
+        required=False
+    )
