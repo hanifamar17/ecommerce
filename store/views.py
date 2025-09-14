@@ -3,6 +3,7 @@ from catalog.models import Products, Category
 from django.core.paginator import Paginator
 from django.db.models import Q, Case, When, IntegerField, Sum
 from django.http import JsonResponse
+from django.contrib import messages
 
 #LANDING PAGE
 def landing_page(request):
@@ -234,3 +235,48 @@ def update_cart(request):
         return JsonResponse({"status": "success", "message": message})
     
     return JsonResponse({"status": "success", "message": "Metode tidak valid"})
+
+#checkout cart
+def cart_checkout(request):
+    cart = request.session.get("cart", {})
+    selected_items = request.POST.getlist("selected_items")
+    checkout_items = []
+    total = 0
+
+    if not selected_items:
+        messages.warning(request, "Silakan pilih minimal satu produk untuk checkout")
+        return redirect("cart_view")
+    
+    for product_id in selected_items:
+        item_data = cart.get(product_id)
+        if not item_data:
+            continue
+
+        try:
+            product = Products.objects.get(pk=product_id)
+
+            item_data["name"] = product.name
+            item_data["price"] = float(product.price)
+            item_data["image_url"] = product.image.url if product.image else ""
+
+            subtotal = item_data["price"] * item_data["quantity"]
+            total += subtotal
+
+            checkout_items.append({
+                "id": product_id,
+                "name": item_data["name"],
+                "price": item_data["price"],
+                "quantity": item_data["quantity"],
+                "image_url": item_data["image_url"],
+                "subtotal": subtotal
+            })
+        
+        except:
+            messages.error(request, f"Produk dengan ID {product_id} tidak ditemukan.")
+            
+    context = {
+        "checkout_items": checkout_items,
+        "total": total,
+    }
+
+    return render(request, "store/checkout.html", context)

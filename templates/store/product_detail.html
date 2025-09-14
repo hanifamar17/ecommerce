@@ -5,12 +5,10 @@
 {% block content %}
 {% load widget_tweaks %}
 <div class="w-full">
-    <div class="p-6 mt-6 sm:10 lg:p-16">
+    <div class="p-6 mt-6 md:mt-0 sm:10 lg:p-16">
         <!-- Breadcrumb -->
         <nav class="my-6">
             <ol class="flex items-center space-x-2 text-sm text-gray-600">
-                <li><a href="{% url 'landing_page' %}" class="hover:text-gray-900">Beranda</a></li>
-                <li><span class="mx-2">/</span></li>
                 <li><a href="{% url 'all_products' %}" class="hover:text-gray-900">Semua Produk</a></li>
                 <li><span class="mx-2">/</span></li>
                 <li class="text-gray-900">Detail Produk</li>
@@ -183,7 +181,7 @@
         <!-- Description and Reviews Section -->
         <div class="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
             <!-- Product Description -->
-            <div class="md:w-1/2 bg-white rounded-lg p-8">
+            <div class="md:w-1/2 rounded-lg p-0 md:p-2">
                 <div class="border-b border-gray-400">
                     <h2 class="text-md md:text-lg font-medium text-gray-900 mb-2">Deskripsi Produk
                     </h2>
